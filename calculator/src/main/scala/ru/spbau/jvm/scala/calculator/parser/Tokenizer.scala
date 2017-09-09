@@ -2,9 +2,32 @@ package ru.spbau.jvm.scala.calculator.parser
 
 import java.util
 
-import ru.spbau.jvm.scala.calculator.expressions.{DoubleExpression, Expression}
+import ru.spbau.jvm.scala.calculator.expressions._
 
-class Tokenizer(text: String, expressions: util.HashMap[String, Expression]) {
+class Tokenizer(text: String, expressions: util.HashMap[String, Array[Expression]]) {
+
+  private def isUnary(tokens: util.ArrayList[Expression]): Boolean = {
+    if (tokens.isEmpty)
+      return true
+
+    val expression = tokens.get(tokens.size() - 1)
+    if (!expression.isInstanceOf[DoubleExpression] && !expression.isInstanceOf[RightBracket])
+      return true
+    false
+  }
+
+  private def getExpression(tokens: util.ArrayList[Expression], canditates: Array[Expression]): Expression = {
+    if (tokens == null || canditates == null)
+      return null
+    val unary = isUnary(tokens)
+    for (candidate <- canditates) {
+      if (unary && candidate.isInstanceOf[UnaryExpression])
+        return candidate
+      if (!unary && !candidate.isInstanceOf[UnaryExpression])
+        return candidate
+    }
+    canditates.apply(0)
+  }
 
   def evaluate() : Array[Expression] = {
     val tokens = new util.ArrayList[Expression]()
@@ -31,7 +54,7 @@ class Tokenizer(text: String, expressions: util.HashMap[String, Expression]) {
 
       if (ch != ' ' && ch != '\n' && ch != '\t') {
         token.append(ch)
-        val expression = expressions.get(token.toString())
+        val expression = getExpression(tokens, expressions.get(token.toString()))
         if (expression != null) {
           tokens.add(expression)
           token.clear()
@@ -41,5 +64,4 @@ class Tokenizer(text: String, expressions: util.HashMap[String, Expression]) {
 
     tokens.toArray(new Array[Expression](tokens.size()))
   }
-
 }

@@ -50,21 +50,23 @@ class ExpressionParser(tokens: Array[Expression]) {
 
   private def RPNtoDouble(): DoubleExpression = {
     val tokens = infixToRPN()
+
+    if (tokens.isEmpty)
+      throw new IllegalArgumentException("evaluate RPN error")
+
     val stack = new util.Stack[DoubleExpression]
 
     for (token <- tokens.toArray()) {
       token match {
         case d: DoubleExpression => stack.push(d)
-        case b: BinaryExpression => {
+        case b: BinaryExpression =>
           if (stack.size() < 2)
             throw new IllegalArgumentException("Invalid expression!")
           stack.push(b.evaluate(stack.pop(), stack.pop()))
-        }
-        case u: UnaryExpression => {
+        case u: UnaryExpression =>
           if (stack.size() < 1)
             throw new IllegalArgumentException("Invalid expression!")
           stack.push(u.evaluate(stack.pop()))
-        }
         case _ => throw new IllegalArgumentException("Unknown token!")
       }
     }

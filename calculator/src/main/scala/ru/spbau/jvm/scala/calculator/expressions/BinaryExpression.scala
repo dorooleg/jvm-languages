@@ -1,5 +1,6 @@
 package ru.spbau.jvm.scala.calculator.expressions
 
+
 class BinaryExpression(operationName: String, operationPrecedence: Int, operationAssociativity: Associativity.Value, f: (Double, Double) => Double) extends Expression {
   override def name(): String = operationName
 
