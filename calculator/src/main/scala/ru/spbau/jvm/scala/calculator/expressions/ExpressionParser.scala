@@ -13,13 +13,13 @@ class ExpressionParser(tokens: Array[Expression]) {
         case d: DoubleExpression =>
           output.add(d)
         case _: UnaryExpression | _: BinaryExpression =>
-          while (!stack.empty() && !stack.peek().isInstanceOf[LeftBracket]) {
-            if ( (token.associativity == Associativity.LEFT &&
-                  token.precedence <= stack.peek().precedence) ||
+          while (!stack.empty() &&
+                  !stack.peek().isInstanceOf[LeftBracket] && (
+                  (token.associativity == Associativity.LEFT &&
+                    token.precedence <= stack.peek().precedence) ||
                   (token.associativity == Associativity.RIGHT &&
-                    token.precedence < stack.peek().precedence)) {
+                    token.precedence < stack.peek().precedence))) {
               output.add(stack.pop())
-            }
           }
           stack.push(token)
         case l: LeftBracket =>
@@ -37,9 +37,9 @@ class ExpressionParser(tokens: Array[Expression]) {
               if (!l.isBackwardBracket(r))
                 throw new IllegalArgumentException("Invalid left bracket")
           }
-
           stack.pop()
       }
+
     }
 
     while (!stack.empty())
